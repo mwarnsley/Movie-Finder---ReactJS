@@ -1,6 +1,6 @@
 var React = require("react");
-var AppAction = require("../actions/AppActions");
-var AppStore = require("../stores/AppStore");
+var AppAction = require("../actions/AppActions.js");
+var AppStore = require("../stores/AppStore.js");
 
 var App = React.createClass({
 	render: function(){
