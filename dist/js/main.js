@@ -19694,30 +19694,150 @@ var AppActions = {
 
 module.exports = AppActions;
 
-},{"../constants/AppConstants":166,"../dispatcher/AppDispatcher":167}],165:[function(require,module,exports){
-var React = require("react");
-var AppAction = require("../actions/AppActions.js");
-var AppStore = require("../stores/AppStore.js");
+},{"../constants/AppConstants":169,"../dispatcher/AppDispatcher":170}],165:[function(require,module,exports){
+var React = require('react');
+var AppActions = require('../actions/AppActions');
+var AppStore = require('../stores/AppStore');
+var SearchForm = require('./SearchForm.js');
+var MovieResults = require('./MovieResults.js');
+
+function getAppState(){
+	return {
+		movies: AppStore.getMovieResults()
+	}
+}
 
 var App = React.createClass({displayName: "App",
+	getInitialState: function(){
+		return getAppState();
+	},
+
+	componentDidMount: function(){
+		AppStore.addChangeListener(this._onChange);
+	},
+
+	componentWillUnmount: function(){
+		AppStore.removeChangeListener(this._onChange);
+	},
+
 	render: function(){
-		return (
+		console.log(this.state.movies);
+		if(this.state.movies == ''){
+			var movieResults = '';
+		} else {
+			var movieResults = React.createElement(MovieResults, {movies: this.state.movies})
+		}
+
+		return(
 			React.createElement("div", null, 
-				"MYAPP"
+				React.createElement(SearchForm, null), 
+				movieResults
 			)
 		)
+	},
+
+	_onChange: function(){
+		this.setState(getAppState());
 	}
 });
 
 module.exports = App;
 
-},{"../actions/AppActions.js":164,"../stores/AppStore.js":169,"react":163}],166:[function(require,module,exports){
+},{"../actions/AppActions":164,"../stores/AppStore":172,"./MovieResults.js":167,"./SearchForm.js":168,"react":163}],166:[function(require,module,exports){
+var React = require('react');
+var AppActions = require('../actions/AppActions');
+var AppStore = require('../stores/AppStore');
+
+var Movie = React.createClass({displayName: "Movie",
+	render: function(){
+		var link = 'http://www.imdb.com/title/'+this.props.movie.imdbID;
+		return(
+			React.createElement("div", {className: "well"}, 
+				React.createElement("div", {className: "row"}, 
+					React.createElement("div", {className: "col-md-4"}, 
+						React.createElement("img", {className: "thumbnail", src: this.props.movie.Poster})
+					), 
+					React.createElement("div", {className: "col-md-8"}, 
+						React.createElement("h4", null, this.props.movie.Title), 
+						React.createElement("ul", {className: "list-group"}, 
+							React.createElement("li", {className: "list-group-item"}, "Year Released: ", this.props.movie.Year), 
+							React.createElement("li", {className: "list-group-item"}, "IMDB ID: ", this.props.movie.imdbID)
+						), 
+						React.createElement("a", {className: "btn btn-primary", href: link}, "View on IMDB")
+					)
+				)
+			)
+		)
+	},
+});
+
+module.exports = Movie;
+
+},{"../actions/AppActions":164,"../stores/AppStore":172,"react":163}],167:[function(require,module,exports){
+var React = require('react');
+var AppActions = require('../actions/AppActions');
+var AppStore = require('../stores/AppStore');
+var Movie = require('./Movie.js');
+
+var MovieResults = React.createClass({displayName: "MovieResults",
+	render: function(){
+		return(
+			React.createElement("div", null, 
+				React.createElement("h3", {className: "text-center"}, "Results"), 
+				
+					this.props.movies.map(function(movie, i){
+						return(
+							React.createElement(Movie, {movie: movie, key: i})
+						)
+					})
+				
+			)
+		)
+	},
+});
+
+module.exports = MovieResults;
+
+},{"../actions/AppActions":164,"../stores/AppStore":172,"./Movie.js":166,"react":163}],168:[function(require,module,exports){
+var React = require('react');
+var AppActions = require('../actions/AppActions');
+var AppStore = require('../stores/AppStore');
+
+var SearchForm = React.createClass({displayName: "SearchForm",
+	render: function(){
+		return(
+			React.createElement("div", {className: "search-form"}, 
+				React.createElement("h1", {className: "text-center"}, "Search For A Movie"), 
+				React.createElement("form", {onSubmit: this.onSubmit}, 
+					React.createElement("div", {className: "form-group"}, 
+						React.createElement("input", {type: "text", className: "form-control", ref: "title", placeholder: "Enter a Movie Title..."})
+					), 
+					React.createElement("button", {className: "btn btn-primary btn-block"}, "Search Movies")
+				)
+			)
+		)
+	},
+
+	onSubmit: function(e){
+		e.preventDefault();
+
+		var movie = {
+			title: this.refs.title.value.trim()
+		}
+
+		AppActions.searchMovies(movie);
+	}
+});
+
+module.exports = SearchForm;
+
+},{"../actions/AppActions":164,"../stores/AppStore":172,"react":163}],169:[function(require,module,exports){
 module.exports = {
 	SEARCH_MOVIES: 'SEARCH_MOVIES',
 	RECEIVE_MOVIE_RESULTS: 'RECEIVE_MOVIE_RESULTS'
 }
 
-},{}],167:[function(require,module,exports){
+},{}],170:[function(require,module,exports){
 var Dispatcher = require("flux").Dispatcher;
 var assign = require("object-assign");
 
@@ -19733,18 +19853,18 @@ var AppDispatcher = assign(new Dispatcher(), {
 
 module.exports = AppDispatcher;
 
-},{"flux":3,"object-assign":6}],168:[function(require,module,exports){
-var App = require("./components/App");
-var React = require("react");
-var ReactDOM = require("react-dom");
-var AppAPI = require("./utils/appAPI.js");
+},{"flux":3,"object-assign":6}],171:[function(require,module,exports){
+var App = require('./components/App');
+var React = require('react');
+var ReactDOM = require('react-dom');
+var AppAPI = require('./utils/appAPI.js');
 
 ReactDOM.render(
 	React.createElement(App, null),
-	document.getElementById("app")
+	document.getElementById('app')
 );
 
-},{"./components/App":165,"./utils/appAPI.js":170,"react":163,"react-dom":7}],169:[function(require,module,exports){
+},{"./components/App":165,"./utils/appAPI.js":173,"react":163,"react-dom":7}],172:[function(require,module,exports){
 var AppDispatcher = require('../dispatcher/AppDispatcher');
 var AppConstants = require('../constants/AppConstants');
 var EventEmitter = require('events').EventEmitter;
@@ -19794,7 +19914,7 @@ AppDispatcher.register(function(payload){
 
 module.exports = AppStore;
 
-},{"../constants/AppConstants":166,"../dispatcher/AppDispatcher":167,"../utils/appAPI.js":170,"events":1,"object-assign":6}],170:[function(require,module,exports){
+},{"../constants/AppConstants":169,"../dispatcher/AppDispatcher":170,"../utils/appAPI.js":173,"events":1,"object-assign":6}],173:[function(require,module,exports){
 var AppActions = require('../actions/AppActions');
 
 module.exports = {
@@ -19813,4 +19933,4 @@ module.exports = {
 	}
 }
 
-},{"../actions/AppActions":164}]},{},[168]);
+},{"../actions/AppActions":164}]},{},[171]);
