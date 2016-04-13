@@ -1,0 +1,31 @@
+{
+  "name": "moviefinder",
+  "version": "1.0.0",
+  "description": "Simple movie info finder built in reactjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mwarnsley/Movie-Finder---ReactJS.git"
+  },
+  "author": "Marcus Warnsley",
+  "license": "ISC",
+  "devDependencies": {
+    "browserify": "*",
+    "flux": "*",
+    "gulp": "*",
+    "reactify": "*",
+    "vinyl-source-stream": "*",
+    "object-assign": "*"
+  },
+  "dependencies": {
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7"
+  },
+  "bugs": {
+    "url": "https://github.com/mwarnsley/Movie-Finder---ReactJS/issues"
+  },
+  "homepage": "https://github.com/mwarnsley/Movie-Finder---ReactJS#readme"
+}
