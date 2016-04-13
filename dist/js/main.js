@@ -19713,7 +19713,8 @@ module.exports = App;
 
 },{"../actions/AppActions.js":164,"../stores/AppStore.js":169,"react":163}],166:[function(require,module,exports){
 module.exports = {
-	SEARCH_MOVIES: "SEARCH_MOVIES"
+	SEARCH_MOVIES: 'SEARCH_MOVIES',
+	RECEIVE_MOVIE_RESULTS: 'RECEIVE_MOVIE_RESULTS'
 }
 
 },{}],167:[function(require,module,exports){
@@ -19744,26 +19745,32 @@ ReactDOM.render(
 );
 
 },{"./components/App":165,"./utils/appAPI.js":170,"react":163,"react-dom":7}],169:[function(require,module,exports){
-var AppDispatcher = require("../dispatcher/AppDispatcher");
-var AppConstants = require("../constants/AppConstants");
-var EventEmitter = require("events").EventEmitter;
-var assign = require("object-assign");
-var AppAPI = require("../utils/appAPI");
+var AppDispatcher = require('../dispatcher/AppDispatcher');
+var AppConstants = require('../constants/AppConstants');
+var EventEmitter = require('events').EventEmitter;
+var assign = require('object-assign');
+var AppAPI = require('../utils/appAPI.js');
 
-var CHANGE_EVENT = "change";
+var CHANGE_EVENT = 'change';
 
 var _movies = [];
 var _selected = '';
 
 var AppStore = assign({}, EventEmitter.prototype, {
+	setMovieResults: function(movies){
+		_movies = movies;
+	},
+	getMovieResults: function(){
+		return _movies;
+	},
 	emitChange: function(){
 		this.emit(CHANGE_EVENT);
 	},
 	addChangeListener: function(callback){
-		this.on("change", callback);
+		this.on('change', callback);
 	},
 	removeChangeListener: function(callback){
-		this.removeListener("change", callback);
+		this.removeListener('change', callback);
 	}
 });
 
@@ -19771,19 +19778,38 @@ AppDispatcher.register(function(payload){
 	var action = payload.action;
 
 	switch(action.actionType){
-
+		case AppConstants.SEARCH_MOVIES:
+			console.log('Searching for movie '+ action.movie.title);
+			AppAPI.searchMovies(action.movie);
+			AppStore.emit(CHANGE_EVENT);
+			break;
+		case AppConstants.RECEIVE_MOVIE_RESULTS:
+			AppStore.setMovieResults(action.movies);
+			AppStore.emit(CHANGE_EVENT);
+			break;
 	}
+
 	return true;
 });
 
-module.exports = Appstore;
+module.exports = AppStore;
 
-},{"../constants/AppConstants":166,"../dispatcher/AppDispatcher":167,"../utils/appAPI":170,"events":1,"object-assign":6}],170:[function(require,module,exports){
-var AppActions = require("../actions/AppActions");
+},{"../constants/AppConstants":166,"../dispatcher/AppDispatcher":167,"../utils/appAPI.js":170,"events":1,"object-assign":6}],170:[function(require,module,exports){
+var AppActions = require('../actions/AppActions');
 
 module.exports = {
 	searchMovies: function(movie){
-
+		$.ajax({
+			url: 'http://www.omdbapi.com/?s=' + movie.title,
+			dataType: 'json',
+			cache: false,
+			success: function(data){
+				AppActions.receiveMovieResults(data.Search);
+			}.bind(this),
+			error: function(xhr, status, err){
+				alert(err);
+			}.bind(this)
+		});
 	}
 }
 
